@@ -85,3 +85,39 @@ BK     = IF(科创板, 0.2, IF(创业板 AND DATE > VER1, 0.2, IF(ST板块, 0.05
 | 3 | 假阳线 | CLOSE > OPEN AND CLOSE < REF(CLOSE,1) |
 | 4 | 假阴线 | CLOSE < OPEN AND CLOSE > REF(CLOSE,1) |
 | 5 | 大阳线 | CLOSE > OPEN AND (CLOSE >= C涨停5 OR CLOSE > (1.05*OPEN - 51/CS)) OR (CLOSE > 1000 AND CLOSE > RC1*1.024) |
+
+### 第七步：均线系统（上升轨道判断）
+
+```
+MA5   = MA(CLOSE, 5)
+MA10  = MA(CLOSE, 10)
+MA20  = MA(CLOSE, 20)
+MA60  = MA(CLOSE, 60)      // 即决策线，已计算
+MA250 = MA(CLOSE, 250)
+EMA108 = EMA(CLOSE, 108)   // 即分界线，已计算
+```
+
+**多头排列评分（满分6分）**
+
+```
+得分 = 0
+若 CLOSE > MA20        → +1
+若 MA5 > MA10          → +1
+若 MA10 > MA20         → +1
+若 MA20 > MA60         → +1
+若 MACD > 0 且 MACD > REF(MACD,1)  → +1（红柱放大）
+若 CLOSE > MA60        → +1
+```
+
+**评分解读**
+
+| 分数 | 含义 |
+|------|------|
+| 6分 | 强势上升轨道，均线完全多头排列 |
+| 4-5分 | 偏多，趋势向上但需确认 |
+| 2-3分 | 震荡，上升轨道未形成 |
+| 0-1分 | 弱势，空头排列 |
+
+**MA250 辅助判断**
+- CLOSE > MA250 → 处于牛市轨道
+- CLOSE < MA250 → 处于熊市轨道
